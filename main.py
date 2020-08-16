@@ -45,3 +45,6 @@ def gather_tweets():
 
 def run():
     gather_tweets()
+
+if __name__ == "__main__":
+    run()

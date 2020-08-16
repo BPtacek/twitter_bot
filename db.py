@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect('twitter_resources.db')
+conn = sqlite3.connect('twitter_resources.db', check_same_thread=False)
 c = conn.cursor()
 
 def setup_db():
