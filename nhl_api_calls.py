@@ -1,7 +1,7 @@
 import requests, datetime
 
 url = "http://statsapi.web.nhl.com/api/v1/{}"
-today = "2020-08-15"#str(datetime.date.today())
+today = str(datetime.date.today())
 prep_payload = {'date': today}
 
 def make_call(endpoint, customdate=""):
