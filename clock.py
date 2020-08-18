@@ -8,7 +8,7 @@ def scheduled_job():
     print("Running the bot")
     main.run()
 
-@sched.scheduled_job('interval', minutes=3)
+@sched.scheduled_job('interval', minutes=15)
 def timed_job():
     print('Standing by..')
 
