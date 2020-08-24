@@ -72,6 +72,7 @@ def create_tweets(raw_api_data):
             if len(meta) > 280:
                 tweets[gamedate[str(game)]["opponents"]]["tweets"].append(tweet)
                 tweet = base + player
+                continue
             tweet = meta
         meta = tweet + "\n\n" + gamedate[str(game)]["hashtags"]
         if len(meta) < 280:
