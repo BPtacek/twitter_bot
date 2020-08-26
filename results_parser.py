@@ -1,6 +1,6 @@
-from datetime import date
+import db
+import nhl_api_calls
 
-import nhl_api_calls, db
 
 # parsing the api call response into two main dicts: dates and games. Dates contains dates, games contains teams,
 # their season record, status, gameid, score if game already played/in progress
@@ -15,9 +15,9 @@ def parse_strings_for_tweets(data):
             away = game["teams"]["away"]["team"]["name"]
             opponents = "{} - {}".format(home, away)
             tricodes = "{} - {}".format(*db.get_tricodes(home, away))
-            gameID = game["link"].lstrip('/api/v1/')
+            gameid = game["link"].lstrip('/api/v1/')
             status = game["status"]["detailedState"]
-            czechs = get_czechs_and_slovaks(gameID)
+            czechs = get_czechs_and_slovaks(gameid)
             hashtags = db.get_hashtags(home, away)
 
             if status == "Final":
@@ -27,11 +27,12 @@ def parse_strings_for_tweets(data):
 
             games[date["date"]].setdefault(str(len(games[date["date"]])),
                                            {"opponents": opponents, "status": status, "hashtags": " ".join(hashtags),
-                                            "gameID": gameID, "tricodes": tricodes, "score": score, "czechs": czechs})
+                                            "gameid": gameid, "tricodes": tricodes, "score": score, "czechs": czechs})
     return dates, games
 
-def get_czechs_and_slovaks(gameID):
-    basic_game_data = nhl_api_calls.make_call(gameID)
+
+def get_czechs_and_slovaks(gameid):
+    basic_game_data = nhl_api_calls.make_call(gameid)
     skaters = basic_game_data["gameData"]["players"]
     players_stats = basic_game_data.get("liveData").get("boxscore").get("teams")
     stats_extracted = players_stats.get("away").get("players")
@@ -87,6 +88,7 @@ def create_tweets(raw_api_data):
 
     return tweets
 
+
 def resolve_tweet_length(tweet, opponents, tricodes, hashtags):
     meta = tweet + "\n\n" + hashtags
 
@@ -101,6 +103,7 @@ def resolve_tweet_length(tweet, opponents, tricodes, hashtags):
             if len(meta) < 280:
                 return meta
             return tweet
+
 
 # function to run the api call and collecting the result
 def fetch_data(customdate=""):

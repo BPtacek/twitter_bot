@@ -1,7 +1,9 @@
-import sqlite3, requests
+import requests
+import sqlite3
 
 conn = sqlite3.connect('twitter_resources.db', check_same_thread=False)
 c = conn.cursor()
+
 
 def setup_db():
     c.execute("""CREATE TABLE IF NOT EXISTS teams_twitter (
@@ -52,8 +54,11 @@ def setup_db():
         handle = handle.strip()
         hashtag = hashtag.strip()
 
-    c.execute("INSERT INTO teams_twitter (team_name, twitter_handle, hashtag, season) VALUES ('{}', '{}', '{}', 2019)".format(name, handle, hashtag))
-    conn.commit()
+        c.execute(
+            """INSERT INTO teams_twitter (team_name, twitter_handle, hashtag, season)
+                VALUES ('{}', '{}', '{}', 2019)""".format(name, handle, hashtag))
+        conn.commit()
+
 
 def update_db_with_tricodes():
     r = requests.get("https://statsapi.web.nhl.com//api/v1/teams")
@@ -70,12 +75,14 @@ def update_db_with_tricodes():
 
         conn.commit()
 
+
 def get_hashtags(*teams):
     results = []
     for team in teams:
         c.execute("SELECT hashtag FROM teams_twitter WHERE team_name='{}'".format(team))
         results.append(*c.fetchone())
     return results
+
 
 def get_tricodes(*teams):
     results = []
