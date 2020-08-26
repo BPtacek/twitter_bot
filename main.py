@@ -16,10 +16,10 @@ def tweet_result(tweets):
     auth.set_access_token(Access_token, Access_token_secret)
 
     api = tweepy.API(auth)
-
+    reply_to = ""
     for tweet in tweets:
         print(tweet)
-        api.update_status(tweet)
+        reply_to = api.update_status(tweet, in_reply_to_status_id=reply_to).id
         time.sleep(15)
 
 
