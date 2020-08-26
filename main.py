@@ -12,15 +12,15 @@ Access_token_secret = os.environ.get("Access_token_secret")
 
 def tweet_result(tweets):
 
-    auth = tweepy.OAuthHandler(API_key, API_secret_key)
-    auth.set_access_token(Access_token, Access_token_secret)
-
-    api = tweepy.API(auth)
+    # auth = tweepy.OAuthHandler(API_key, API_secret_key)
+    # auth.set_access_token(Access_token, Access_token_secret)
+    #
+    # api = tweepy.API(auth)
 
     for tweet in tweets:
         print(tweet)
-        api.update_status(tweet)
-        time.sleep(15)
+        # api.update_status(tweet)
+        # time.sleep(15)
 
 
 def gather_tweets():
@@ -43,8 +43,10 @@ def gather_tweets():
         print(games)
         time.sleep(600)
 
+
 def run():
     gather_tweets()
+
 
 if __name__ == "__main__":
     run()

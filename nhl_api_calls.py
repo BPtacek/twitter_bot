@@ -1,8 +1,10 @@
-import requests, datetime
+import datetime
+import requests
 
 url = "http://statsapi.web.nhl.com/api/v1/{}"
 today = str(datetime.date.today())
 prep_payload = {'date': today}
+
 
 def make_call(endpoint, customdate=""):
     payload = {'date': customdate} if customdate else prep_payload
@@ -14,6 +16,7 @@ def make_call(endpoint, customdate=""):
             f.write(today + ": " + "nhl_api_calls module: Response status code not 200\n")
             f.write(r.text)
         raise ValueError("nhl_api_calls module: Response status code not 200")
+
 
 if __name__ == "__main__":
     pass
