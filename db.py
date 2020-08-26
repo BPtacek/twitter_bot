@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, requests
 
 conn = sqlite3.connect('twitter_resources.db', check_same_thread=False)
 c = conn.cursor()
@@ -9,7 +9,8 @@ def setup_db():
             team_name TEXT NOT NULL UNIQUE,
             twitter_handle TEXT NOT NULL UNIQUE,
             hashtag TEXT NOT NULL UNIQUE,
-            season INTEGER NOT NULL)
+            season INTEGER NOT NULL,
+            tricode TEXT UNIQUE)
             """)
 
     conn.commit()
@@ -54,9 +55,31 @@ def setup_db():
     c.execute("INSERT INTO teams_twitter (team_name, twitter_handle, hashtag, season) VALUES ('{}', '{}', '{}', 2019)".format(name, handle, hashtag))
     conn.commit()
 
+def update_db_with_tricodes():
+    r = requests.get("https://statsapi.web.nhl.com//api/v1/teams")
+    teams = r.json()["teams"]
+
+    for team in teams:
+        teamname = team.get("name")
+        tricode = team.get("abbreviation")
+        print(tricode, teamname)
+
+        c.execute("""UPDATE teams_twitter
+                    SET tricode = "{}"
+                    WHERE team_name = '{}'""".format(tricode, teamname))
+
+        conn.commit()
+
 def get_hashtags(*teams):
     results = []
     for team in teams:
         c.execute("SELECT hashtag FROM teams_twitter WHERE team_name='{}'".format(team))
+        results.append(*c.fetchone())
+    return results
+
+def get_tricodes(*teams):
+    results = []
+    for team in teams:
+        c.execute("SELECT tricode FROM teams_twitter WHERE team_name='{}'".format(team))
         results.append(*c.fetchone())
     return results

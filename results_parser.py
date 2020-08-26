@@ -14,6 +14,7 @@ def parse_strings_for_tweets(data):
             home = game["teams"]["home"]["team"]["name"]
             away = game["teams"]["away"]["team"]["name"]
             opponents = "{} - {}".format(home, away)
+            tricodes = "{} - {}".format(*db.get_tricodes(home, away))
             gameID = game["link"].lstrip('/api/v1/')
             status = game["status"]["detailedState"]
             czechs = get_czechs_and_slovaks(gameID)
@@ -26,7 +27,7 @@ def parse_strings_for_tweets(data):
 
             games[date["date"]].setdefault(str(len(games[date["date"]])),
                                            {"opponents": opponents, "status": status, "hashtags": " ".join(hashtags),
-                                            "gameID": gameID, "score": score, "czechs": czechs})
+                                            "gameID": gameID, "tricodes": tricodes, "score": score, "czechs": czechs})
     return dates, games
 
 def get_czechs_and_slovaks(gameID):
@@ -65,22 +66,41 @@ def create_tweets(raw_api_data):
     for game in range(len(gamedate)):
         unfinished_game = True if gamedate[str(game)]["status"] in ("Final", "Cancelled") else False
         tweets[gamedate[str(game)]["opponents"]] = {"tweets": [], "finished": unfinished_game}
-        base = playday + "\n" + gamedate[str(game)]["opponents"] + " " + gamedate[str(game)]["score"] + "\n"
+        opponents = gamedate[str(game)]["opponents"]
+        hashtags = gamedate[str(game)]["hashtags"]
+        tricodes = gamedate[str(game)]["tricodes"]
+        base = playday + "\n" + opponents + " " + gamedate[str(game)]["score"] + "\n"
         tweet = base
         for player in sorted(gamedate[str(game)]["czechs"]):
             meta = tweet + "\n" + player
-            if len(meta) > 280:
-                tweets[gamedate[str(game)]["opponents"]]["tweets"].append(tweet)
-                tweet = base + player
+
+            if len(meta) < 280:
+                tweet = meta
                 continue
-            tweet = meta
-        meta = tweet + "\n\n" + gamedate[str(game)]["hashtags"]
-        if len(meta) < 280:
-            tweet = meta
-        tweets[gamedate[str(game)]["opponents"]]["tweets"].append(tweet)
+            else:
+                tweet = resolve_tweet_length(tweet, opponents, tricodes, hashtags)
+                tweets[opponents]["tweets"].append(tweet)
+                tweet = base + "\n" + player
+
+        tweet = resolve_tweet_length(tweet, opponents, tricodes, hashtags)
+        tweets[opponents]["tweets"].append(tweet)
 
     return tweets
 
+def resolve_tweet_length(tweet, opponents, tricodes, hashtags):
+    meta = tweet + "\n\n" + hashtags
+
+    if len(meta) < 280:
+        return meta
+    else:
+        meta = meta.replace(opponents, tricodes)
+        if len(meta) < 280:
+            return meta
+        else:
+            meta = tweet.replace(opponents, tricodes)
+            if len(meta) < 280:
+                return meta
+            return tweet
 
 # function to run the api call and collecting the result
 def fetch_data(customdate=""):
