@@ -72,6 +72,11 @@ def create_tweets(raw_api_data):
         tricodes = gamedate[str(game)]["tricodes"]
         base = playday + "\n" + opponents + " " + gamedate[str(game)]["score"] + "\n"
         tweet = base
+        if gamedate[str(game)]["status"] in ("Cancelled", "Postponed"):
+            tweet += "\n" + "Game " + gamedate[str(game)]["status"]
+            tweets[opponents]["tweets"].append(tweet)
+            continue
+
         for player in sorted(gamedate[str(game)]["czechs"]):
             meta = tweet + "\n" + player
 
