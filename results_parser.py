@@ -65,8 +65,8 @@ def create_tweets(raw_api_data):
     gamedate = schedule[1][playday]
     tweets = {}
     for game in range(len(gamedate)):
-        unfinished_game = True if gamedate[str(game)]["status"] in ("Final", "Cancelled") else False
-        tweets[gamedate[str(game)]["opponents"]] = {"tweets": [], "finished": unfinished_game}
+        finished_game = True if gamedate[str(game)]["status"] in ("Final", "Cancelled", "Postponed") else False
+        tweets[gamedate[str(game)]["opponents"]] = {"tweets": [], "finished": finished_game}
         opponents = gamedate[str(game)]["opponents"]
         hashtags = gamedate[str(game)]["hashtags"]
         tricodes = gamedate[str(game)]["tricodes"]
