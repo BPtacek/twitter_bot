@@ -73,7 +73,7 @@ def create_tweets(raw_api_data):
         base = playday + "\n" + opponents + " " + gamedate[str(game)]["score"] + "\n"
         tweet = base
         if gamedate[str(game)]["status"] in ("Cancelled", "Postponed"):
-            tweet += "\n" + "Game " + gamedate[str(game)]["status"]
+            tweet += "\n" + "Game " + gamedate[str(game)]["status"] + "\n\n" + hashtags
             tweets[opponents]["tweets"].append(tweet)
             continue
 
