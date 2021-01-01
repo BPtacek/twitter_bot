@@ -61,6 +61,8 @@ def get_czechs_and_slovaks(gameid):
 # function that prints out to the stdout collected and parsed search results
 def create_tweets(raw_api_data):
     schedule = parse_strings_for_tweets(raw_api_data)
+    if not schedule[0].get("0", None):
+        return {}
     playday = schedule[0]["0"]
     gamedate = schedule[1][playday]
     tweets = {}
