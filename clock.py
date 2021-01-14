@@ -4,7 +4,7 @@ import main
 sched = BlockingScheduler()
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=17)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=20)
 def scheduled_job():
     print("Running the bot")
     main.run()
