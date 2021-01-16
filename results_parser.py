@@ -17,11 +17,15 @@ def parse_strings_for_tweets(data):
             tricodes = "{} - {}".format(*db.get_tricodes(home, away))
             gameid = game["link"].lstrip('/api/v1/')
             status = game["status"]["detailedState"]
-            czechs = get_czechs_and_slovaks(gameid)
+            basic_game_data = get_game_data(gameid)
+            czechs = get_czechs_and_slovaks(basic_game_data)
             hashtags = db.get_hashtags(home, away)
 
             if status == "Final":
                 score = "{} : {}".format(game["teams"]["home"]["score"], game["teams"]["away"]["score"])
+                is_game_ot = basic_game_data.get("liveData").get("linescore").get("currentPeriodOrdinal")
+                if is_game_ot == "OT" or is_game_ot == "SO":
+                    score = score + " " + is_game_ot
             else:
                 score = "- : -"
 
@@ -31,8 +35,11 @@ def parse_strings_for_tweets(data):
     return dates, games
 
 
-def get_czechs_and_slovaks(gameid):
-    basic_game_data = nhl_api_calls.make_call(gameid)
+def get_game_data(gameid):
+    return nhl_api_calls.make_call(gameid)
+
+
+def get_czechs_and_slovaks(basic_game_data):
     skaters = basic_game_data["gameData"]["players"]
     players_stats = basic_game_data.get("liveData").get("boxscore").get("teams")
     stats_extracted = players_stats.get("away").get("players")
@@ -61,9 +68,9 @@ def get_czechs_and_slovaks(gameid):
 # function that prints out to the stdout collected and parsed search results
 def create_tweets(raw_api_data):
     schedule = parse_strings_for_tweets(raw_api_data)
-    if not schedule[0].get("0", None):
+    playday = schedule[0].get("0", None)
+    if not playday:
         return {}
-    playday = schedule[0]["0"]
     gamedate = schedule[1][playday]
     tweets = {}
     for game in range(len(gamedate)):
@@ -95,7 +102,7 @@ def create_tweets(raw_api_data):
 
     return tweets
 
-
+#tweet length-checker, shortening parts of the tweet if necessary
 def resolve_tweet_length(tweet, opponents, tricodes, hashtags):
     meta = tweet + "\n\n" + hashtags
 
