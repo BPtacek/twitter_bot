@@ -43,9 +43,13 @@ def get_czechs_and_slovaks(basic_game_data):
     skaters = basic_game_data["gameData"]["players"]
     players_stats = basic_game_data.get("liveData").get("boxscore").get("teams")
     decisions = basic_game_data.get("liveData").get("decisions")
-    three_stars = {decisions.get("firstStar").get("fullName"): " 1st⭐",
-                   decisions.get("secondStar").get("fullName"): " 2nd⭐",
-                   decisions.get("thirdStar").get("fullName"): " 3r⭐"}
+    try:
+        three_stars = {decisions.get("firstStar").get("fullName"): " 1st⭐",
+                       decisions.get("secondStar").get("fullName"): " 2nd⭐",
+                       decisions.get("thirdStar").get("fullName"): " 3r⭐"}
+    except AttributeError:
+        three_stars = {}
+
     stats_extracted = players_stats.get("away").get("players")
     stats_extracted.update(players_stats.get("home").get("players"))
     czechs = []
