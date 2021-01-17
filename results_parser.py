@@ -42,12 +42,18 @@ def get_game_data(gameid):
 def get_czechs_and_slovaks(basic_game_data):
     skaters = basic_game_data["gameData"]["players"]
     players_stats = basic_game_data.get("liveData").get("boxscore").get("teams")
+    decisions = basic_game_data.get("liveData").get("decisions")
+    three_stars = {decisions.get("firstStar").get("fullName"): " 1st⭐",
+                   decisions.get("secondStar").get("fullName"): " 2nd⭐",
+                   decisions.get("thirdStar").get("fullName"): " 3r⭐"}
     stats_extracted = players_stats.get("away").get("players")
     stats_extracted.update(players_stats.get("home").get("players"))
     czechs = []
     for player in skaters:
         if skaters[player].get("nationality") in ("CZE", "SVK"):
             name, code = skaters[player]["fullName"], skaters[player]["currentTeam"].get("triCode", "???")
+            if name in three_stars:
+                name += three_stars[name]
             if stats_extracted.get(player).get("position").get("code") == "G":
                 stats = stats_extracted.get(player).get("stats").get("goalieStats")
                 czechs.extend([" ".join(
