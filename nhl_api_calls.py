@@ -1,13 +1,10 @@
-import datetime
 import requests
 
 url = "http://statsapi.web.nhl.com/api/v1/{}"
-today = str(datetime.date.today())
-prep_payload = {'date': today}
 
 
 def make_call(endpoint, customdate=""):
-    payload = {'date': customdate} if customdate else prep_payload
+    payload = {'date': customdate} if customdate else ""
     r = requests.get(url.format(endpoint), params=payload)
     if r.status_code == 200:
         return r.json()
