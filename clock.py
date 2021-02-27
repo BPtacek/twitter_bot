@@ -4,15 +4,16 @@ import main
 sched = BlockingScheduler()
 
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=20)
+@sched.scheduled_job('cron', day_of_week='sat-sun', hour=20)
 def scheduled_job():
     print("Running the bot")
     main.run()
 
 
-@sched.scheduled_job('interval', minutes=15)
-def timed_job():
-    print('Standing by..')
+@sched.scheduled_job('cron', day_of_week='mon-fri', hour=23)
+def scheduled_job():
+    print("Running the bot")
+    main.run()
 
 
 sched.start()
