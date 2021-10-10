@@ -1,6 +1,8 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 import main
+import datetime
 
+yesterday = str(datetime.date.today()-datetime.timedelta(1))
 sched = BlockingScheduler()
 
 
@@ -14,6 +16,11 @@ def scheduled_job():
 def scheduled_job():
     print("Running the bot")
     main.run()
+
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=7)
+def scheduled_job():
+    print("Running the check")
+    main.check_unfinished(yesterday)
 
 
 sched.start()
