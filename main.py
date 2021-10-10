@@ -3,6 +3,11 @@ import time
 import results_parser
 import tweepy
 import os
+import sqlite3
+import json
+
+conn = sqlite3.connect('twitter_resources.db', check_same_thread=False)
+c = conn.cursor()
 
 API_key = os.environ.get("API_key")
 API_secret_key = os.environ.get("API_secret_key")
@@ -33,15 +38,38 @@ def gather_tweets():
             tweet_result(data[game]["tweets"])
             games["tweeted"].append(game)
 
-    while set(games["tweeted"]) != set(games["all"]):
-        data = results_parser.return_todays_data(date)
-        for game in data:
-            if data[game].get("finished") and game not in games["tweeted"]:
-                games["finished"].append(game)
-                tweet_result(data[game]["tweets"])
-                games["tweeted"].append(game)
-        print(games)
-        time.sleep(600)
+    try:
+        c.execute(
+        """INSERT INTO unfinished (Date, Games) VALUES ('{}', '{}')""".format(date, json.dumps(games)))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        pass
+
+    check_unfinished(date)
+
+
+def check_unfinished(date):
+    c.execute("SELECT Games FROM unfinished WHERE Date='{}'".format(date))
+    search_result = c.fetchone()
+    if search_result:
+        games = json.loads(search_result[0])
+        while set(games["tweeted"]) != set(games["all"]):
+            data = results_parser.return_todays_data(date)
+            for game in data:
+                if data[game].get("finished") and game not in games["tweeted"]:
+                    games["finished"].append(game)
+                    tweet_result(data[game]["tweets"])
+                    games["tweeted"].append(game)
+
+            c.execute("""UPDATE unfinished SET Games = '{}' WHERE Date = '{}'""".format(json.dumps(games), date))
+            conn.commit()
+            print(games)
+            time.sleep(600)
+
+        c.execute("DELETE FROM unfinished WHERE Date='{}'".format(date))
+        conn.commit()
+    else:
+        pass
 
 
 def run():
