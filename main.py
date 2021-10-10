@@ -40,7 +40,7 @@ def gather_tweets():
 
     try:
         c.execute(
-        """INSERT INTO unfinished (Date, Games) VALUES ('{}', '{}')""".format(date, json.dumps(games)))
+            """INSERT INTO unfinished (Date, Games) VALUES ('{}', '{}')""".format(date, json.dumps(games)))
         conn.commit()
     except sqlite3.IntegrityError:
         pass
