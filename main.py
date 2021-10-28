@@ -14,13 +14,12 @@ API_secret_key = os.environ.get("API_secret_key")
 Access_token = os.environ.get("Access_token")
 Access_token_secret = os.environ.get("Access_token_secret")
 
+auth = tweepy.OAuthHandler(API_key, API_secret_key)
+auth.set_access_token(Access_token, Access_token_secret)
+api = tweepy.API(auth)
 
 def tweet_result(tweets):
 
-    auth = tweepy.OAuthHandler(API_key, API_secret_key)
-    auth.set_access_token(Access_token, Access_token_secret)
-
-    api = tweepy.API(auth)
     reply_to = ""
     for tweet in tweets:
         print(tweet)
@@ -69,7 +68,19 @@ def check_unfinished(date):
         c.execute("DELETE FROM unfinished WHERE Date='{}'".format(date))
         conn.commit()
     else:
-        pass
+        tweeted_last = api.user_timeline()
+        games_tweeted_today = [tweet.text for tweet in tweeted_last if date in tweet.text]
+        data = results_parser.return_todays_data(date)
+        games = {"finished": [], "tweeted": [], "all": list(data.keys())}
+
+        for game in data:
+            if any(game in tweet_text for tweet_text in games_tweeted_today):
+                games["finished"].append(game)
+                games["tweeted"].append(game)
+            if data[game].get("finished") and game not in games["tweeted"]:
+                games["finished"].append(game)
+                tweet_result(data[game]["tweets"])
+                games["tweeted"].append(game)
 
 
 def run():
