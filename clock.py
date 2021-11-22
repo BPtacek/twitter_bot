@@ -19,7 +19,8 @@ def scheduled_job():
 
 @sched.scheduled_job('cron', day_of_week='mon-sun', hour=7)
 def scheduled_job():
-    print("Running the check")
+    yesterday = str(datetime.date.today() - datetime.timedelta(1))
+    print(f"Running the check for {yesterday}")
     main.check_unfinished(yesterday)
 
 
